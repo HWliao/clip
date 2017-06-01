@@ -1,0 +1,26 @@
+{
+  "name": "clip",
+  "version": "1.0.0",
+  "description": "ffi Clipboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HWliao/clip.git"
+  },
+  "keywords": [
+    "node",
+    "Clipboard"
+  ],
+  "author": "HWliao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HWliao/clip/issues"
+  },
+  "homepage": "https://github.com/HWliao/clip#readme",
+  "dependencies": {
+    "ffi": "^2.2.0"
+  }
+}
