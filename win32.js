@@ -14,8 +14,6 @@ var GMEM = {
   ZEROINIT: 0x0040,
 };
 
-
-
 var user32 = new ffi.Library('user32', {
   OpenClipboard:                 ['int8',  { hWndNewOwner: 'ulong'}],
   CloseClipboard:                ['int8'],

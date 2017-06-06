@@ -22,5 +22,6 @@
   "homepage": "https://github.com/HWliao/clip#readme",
   "dependencies": {
     "ffi": "^2.2.0"
-  }
+  },
+  "devDependencies": {}
 }
