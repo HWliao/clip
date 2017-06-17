@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body style="background-color: rgba(0,0,0,0);">
+<h1 style="-webkit-user-select: none;cursor: default;">Hello</h1>
+<h2 style="-webkit-user-select: none;cursor: default;">这是一个非常有意思的透明窗体!!!</h2>
+
+<button id="test">Do</button>
+<button id="exit">exit</button>
+<script type="text/javascript" src="./NIM_Web_NIM_v3.6.0.js"></script>
+
+<script type="text/javascript">
+  console.log(1);
+  var nw = require('nw.gui');
+  console.log(2);
+  var ffi = require('ffi');
+  console.log(3);
+  var mydll2 = ffi.Library('./cpp/mydll2.dll', {
+    'Add': ['int', ['int', 'int']]
+  });
+  console.log(4);
+  var result = mydll2.Add(1, 2);
+  console.log(5);
+  //  alert(result);
+</script>
+
+<script type="text/javascript">
+  var exit = document.getElementById('exit');
+  var win = nw.Window.get();
+  exit.addEventListener('click', function () {
+    win.close();
+  }, false);
+</script>
+
+<script type="text/javascript">
+  var ref = require('ref');
+  console.log(ref);
+  var clipboard = require('./clipboard');
+  clipboard.read();
+</script>
+
+</body>
+</html>
