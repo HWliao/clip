@@ -10,7 +10,9 @@ vs c/c++ build tool 2015.
 
 cl/link command:
 ````
-asfkaklf
+vcbuildtools.bat x86
+cl /C mydll2.cpp
+link /dll mydll2.obj
 ````
 
 nwbuild

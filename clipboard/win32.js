@@ -1,29 +1,8 @@
-var ref = require('ref');
-var ffi = require('ffi');
-console.log('x' + 1);
-var kernel32 = new ffi.Library('kernel32', {
-  GlobalSize: ['ulong', ['ulong']],
-  GlobalLock: ['pointer', ['ulong']],
-  GlobalUnlock: ['int8', ['ulong']],
-  GlobalAlloc: ['ulong', ['uint', 'ulong']],
-});
-console.log('x' + 2);
-var user32 = new ffi.Library('user32', {
-  OpenClipboard: ['int8', ['ulong']],
-  CloseClipboard: ['int8', []],
-  EmptyClipboard: ['int8', []],
-  SetClipboardData: ['ulong', ['uint', 'ulong']],
-  GetClipboardData: ['ulong', ['uint']],
-  EnumClipboardFormats: ['uint', ['uint']],
-  CountClipboardFormats: ['int', []],
-  GetClipboardFormatNameA: ['int', ['uint', ref.types.void, 'int']],
-  RegisterClipboardFormatA: ['uint', ['string']],
-  //AddClipboardFormatListener:    ['int8',  { hwnd: 'ulong' }],
-  //RemoveClipboardFormatListener: ['int8',  { hwnd: 'ulong' }],
-  //SetClipboardViewer:            ['ulong', { hWndNewViewer: 'ulong' }],
-  //ChangeClipboardChain:          ['int8',  { hWndRemove: 'ulong', hWndNewNext: 'ulong'}]
-});
-console.log('x' + 3);
+/**
+ * 基于node-ffi对win32 clipboard api进行封装调用
+ * Created by lenovo on 2017/6/22.
+ */
+
 // 内存属性
 // GMEM_FIXED
 // 分配一块固定的内存区域，不允许系统移动，这时返回值是一个指针。
@@ -38,7 +17,7 @@ console.log('x' + 3);
 var GMEM = {
   FIXED: 0x0000,
   MOVEABLE: 0x0002,
-  ZEROINIT: 0x0040,
+  ZEROINIT: 0x0040
 };
 // 标准剪贴簿数据格式
 // Windows支持不同的预先定义剪贴簿格式， 这些格式在WINUSER.H定义成以CF为前缀的标识符。
@@ -88,71 +67,9 @@ var CF = {
   PRIVATEFIRST: 0x0200,
   PRIVATELAST: 0x02FF,
   GDIOBJFIRST: 0x0300,
-  GDIOBJLAST: 0x03FF,
+  GDIOBJLAST: 0x03FF
 };
 
-exports.read = function () {
-  var oint = user32.OpenClipboard(ref.NULL);
-  console.log(oint);
-  if (oint) {
-    var obj = user32.GetClipboardData(CF.TEXT);
-    var CString = kernel32.GlobalLock(obj);
-    kernel32.GlobalUnlock(obj);
-    console.log(ref.readCString(CString, 0));
-  } else {
-    console.log(6);
-    console.log(oint);
-  }
-  user32.CloseClipboard();
-};
-exports.count = function () {
-  console.log(user32.CountClipboardFormats());
-};
-exports.enu = function () {
-  var format = 0;
-  var collected = [];
-  collected.next = function () {
-    format = user32.EnumClipboardFormats(format) || null;
-    if (format) collected.push(format);
-    else collected.next = function depleted() {
-    };
-    return format;
-  };
-  var oint = user32.OpenClipboard(ref.types.NULL);
-  while (collected.next()) {
 
-  }
-  user32.CloseClipboard();
-  console.log(collected);
-};
-exports.readAll = function () {
-  var format = 0;
-  var collected = [];
-  var values = [];
-  var sizes = [];
-  collected.next = function () {
-    format = user32.EnumClipboardFormats(format) || null;
-    if (format) collected.push(format);
-    else collected.next = function depleted() {
-    };
-    return format;
-  };
-  var x = 0;
-  user32.OpenClipboard(ref.NULL);
-  while (x = collected.next()) {
-    var v = user32.GetClipboardData(x);
-    var vv = kernel32.GlobalLock(v);
-    if (ref.isNull(vv)) {
-      values.push(null);
-    } else {
-      values.push(vv.readCString());
-    }
-    sizes.push(kernel32.GlobalSize(v));
-    kernel32.GlobalUnlock(v);
-  }
-  user32.CloseClipboard();
-  console.log(collected);
-  console.log(values);
-  console.log(sizes);
-  return values;
-};
+
+
