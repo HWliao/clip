@@ -1,8 +1,7 @@
 {
   "name": "clip",
   "version": "1.0.0",
-  "description": "ffi Clipboard",
-  "main": "index.js",
+  "description": "ffi Clipboard nwjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,9 +19,24 @@
     "url": "https://github.com/HWliao/clip/issues"
   },
   "homepage": "https://github.com/HWliao/clip#readme",
+  "main": "./test.html",
+  "chromium-args": "--ppapi-flash-path --disable-gpu --force-cpu-draw --user-data-dir=C:\\Users\\lenovo\\Desktop\\xxx",
+  "window": {
+    "id": "main",
+    "transparent": true,
+    "frame": false
+  },
+  "webkit": {
+    "double_tap_to_zoom_enabled": false,
+    "plugin": false
+  },
   "dependencies": {
     "bindings": "^1.2.0",
-    "debug": "^2.6.8"
+    "debug": "2",
+    "ffi": "^2.2.0",
+    "nan": "2",
+    "ref-array": "1",
+    "ref-struct": "1"
   },
   "devDependencies": {}
 }
