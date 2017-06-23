@@ -16,7 +16,7 @@ var user32 = new ffi.Library('user32', {
   GetClipboardData: ['ulong', ['uint']],
   EnumClipboardFormats: ['uint', ['uint']],
   CountClipboardFormats: ['int', []],
-  GetClipboardFormatNameA: ['int', ['uint', ref.types.void, 'int']],
+  GetClipboardFormatNameA: ['int', ['uint', ref.types.CString, 'int']],
   RegisterClipboardFormatA: ['uint', ['string']],
   //AddClipboardFormatListener:    ['int8',  { hwnd: 'ulong' }],
   //RemoveClipboardFormatListener: ['int8',  { hwnd: 'ulong' }],
@@ -132,7 +132,7 @@ exports.readAll = function () {
   var sizes = [];
   collected.next = function () {
     format = user32.EnumClipboardFormats(format) || null;
-    if (format) collected.push(format);
+    if (format) collected.push(format.toString(16));
     else collected.next = function depleted() {
     };
     return format;
@@ -141,18 +141,51 @@ exports.readAll = function () {
   user32.OpenClipboard(ref.NULL);
   while (x = collected.next()) {
     var v = user32.GetClipboardData(x);
+    sizes.push(v);
     var vv = kernel32.GlobalLock(v);
-    if (ref.isNull(vv)) {
-      values.push(null);
-    } else {
-      values.push(vv.readCString());
-    }
-    sizes.push(kernel32.GlobalSize(v));
+//    if (ref.isNull(vv)) {
+//      values.push(null);
+//    } else {
+    values.push(vv);
+//    }
+//    sizes.push(kernel32.GlobalSize(v));
     kernel32.GlobalUnlock(v);
   }
   user32.CloseClipboard();
   console.log(collected);
   console.log(values);
   console.log(sizes);
+  return values;
+};
+exports.readFormatNames = function () {
+  var format = 0;
+  var collected = [];
+  var names = [];
+  var values = [];
+  collected.next = function () {
+    format = user32.EnumClipboardFormats(format) || null;
+    if (format) collected.push(format);
+    else collected.next = function depleted() {
+    };
+    return format;
+  };
+  var x = 0;
+  user32.OpenClipboard(ref.NULL);
+  while (x = collected.next()) {
+    var tmp = Buffer.alloc(512);
+    tmp.type = ref.types.CString;
+    var i = user32.GetClipboardFormatNameA(x, tmp, 512);
+    names.push(tmp);
+    console.log(tmp.readCString());
+    if (tmp.readCString() === 'DataObject') {
+      var globalHandle = user32.GetClipboardData(x);
+      var buf = kernel32.GlobalLock(globalHandle);
+      values.push(buf);
+      kernel32.GlobalUnlock(globalHandle);
+    }
+  }
+  user32.CloseClipboard();
+  console.log(collected);
+  console.log(names);
   return values;
 };
