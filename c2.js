@@ -1,5 +1,6 @@
 var ref = require('ref');
 var ffi = require('ffi');
+var iconv = require('iconv-lite');
 console.log('x' + 1);
 var kernel32 = new ffi.Library('kernel32', {
   GlobalSize: ['ulong', ['ulong']],
@@ -24,6 +25,11 @@ var user32 = new ffi.Library('user32', {
   //ChangeClipboardChain:          ['int8',  { hWndRemove: 'ulong', hWndNewNext: 'ulong'}]
 });
 console.log('x' + 3);
+var shell32 = new ffi.Library('Shell32', {
+  DragQueryFileA: ['uint', ['pointer', 'uint', ref.types.CString, 'uint']]
+});
+
+console.log('x' + 4);
 // 内存属性
 // GMEM_FIXED
 // 分配一块固定的内存区域，不允许系统移动，这时返回值是一个指针。
@@ -177,12 +183,28 @@ exports.readFormatNames = function () {
     var i = user32.GetClipboardFormatNameA(x, tmp, 512);
     names.push(tmp);
     console.log(tmp.readCString());
-    if (tmp.readCString() === 'DataObject') {
-      var globalHandle = user32.GetClipboardData(x);
-      var buf = kernel32.GlobalLock(globalHandle);
-      values.push(buf);
-      kernel32.GlobalUnlock(globalHandle);
+    var globalHandle = user32.GetClipboardData(x);
+    var buf = kernel32.GlobalLock(globalHandle);
+    if (x === CF.HDROP) {
+      var out = Buffer.alloc(512);
+      out.type = ref.types.CString;
+      console.log('----->');
+      var filesLength = shell32.DragQueryFileA(buf, 0xFFFFFFFF, out, 512);
+      console.log('total files :%d', filesLength);
+      for (var j = 0; j <= filesLength; j++) {
+        var charNums = shell32.DragQueryFileA(buf, j, ref.types.NULL, 0);
+        console.log('the %d filename size:%d', j, charNums);
+        var fileNameP = Buffer.alloc(charNums);
+        fileNameP.type = ref.types.CString;
+        shell32.DragQueryFileA(buf, j, fileNameP, charNums);
+        var characterBuffer = ref.reinterpretUntilZeros(fileNameP, 1);
+        console.log('the %d filename:%s', j, iconv.decode(characterBuffer, 'GBK'));
+      }
+      console.log('----->');
     }
+    values.push(buf);
+    kernel32.GlobalUnlock(globalHandle);
+
   }
   user32.CloseClipboard();
   console.log(collected);
